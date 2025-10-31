@@ -1,0 +1,160 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Design and Simulation of LNA for FM Receiver}
+
+\author{\IEEEauthorblockN{Andres Camilo Castiblanco Cruz}
+\IEEEauthorblockA{\textit{Dpto. de Ingeniería Eléctrica y Electrónica} \\
+\textit{Universidad Nacional de Colombia}\\
+Bogotá D.C., Colombia\\
+ancastiblanco@unal.edu.co}
+\and
+\IEEEauthorblockN{Juan Esteban Cubillos Gomez}
+\IEEEauthorblockA{\textit{Dpto. de Ingeniería Eléctrica y Electrónica} \\
+\textit{Universidad Nacional de Colombia}\\
+Bogotá D.C., Colombia\\
+jcubillosg@unal.edu.co}
+\and
+\IEEEauthorblockN{Rosemberth Steeven Preciga Puentes}
+\IEEEauthorblockA{\textit{Dpto. de Ingeniería Eléctrica y Electrónica} \\
+\textit{Universidad Nacional de Colombia}\\
+Bogotá D.C., Colombia\\
+rpreciga@unal.edu.co}
+}
+
+\maketitle
+
+\begin{abstract}
+In this paper we explore the design process of a 100MHz centered LNA as the amplifying stage of an FM receiver.
+\end{abstract}
+
+\section{Design Requirements}
+
+In conformity with the specifications given by the problem, we set the design requirements as shown in table \ref{tab:requirements}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parameter}  & \textbf{Design Requirement} \\ \hline
+$\mathbf{S}_{11}$   & $\leq 10\text{dB}$          \\ \hline
+Voltage Gain        & $\leq 15\text{dB}$          \\ \hline
+$NF$                & $\leq 3\text{dB}$           \\ \hline
+Power Consumption   & Mínimo Realizable           \\ \hline
+$P_{1dB}$           & $\leq - 10\text{dBm}$       \\ \hline
+\end{tabular}
+\vspace{2mm}
+\caption{Design requirements for LNA}
+\label{tab:requirements}
+\end{table}
+
+The chosen frequency must lie within Colombia's FM band, in this case the reference frequency is given as around $110$MHz, so for the design a central frequency of $f_c = 100$MHz was selected. The bandwidth is not being considered in the design at the moment. As main amplifying element, the \textbf{BFP460} NPN BJT transistor was selected. All the simulation information and parameters were taken from Infineon's official website \cite{infineon}.\\
+
+By analyzing the datasheet, we can notice that the gain is highly dependent on biasing conditions, but conversely, the more the bias parameters increase, the more power consumption is an issue. We have, based on \cite{infineon}, a typical DC current gain ($h_{FE}$) of 120. The selected bias for this application is of $V_{CE} = 3V$ and $I_C = 20mA$, which leads to the following transistor parameters: $OIP_3 = 23.5$dBm, $OP_{1\text{dB}} = 9.5$dBm, $NF_{min} \approx 1.25$dB, $|\mathbf{S}_{21}|^2 \approx 30$dB.\\
+
+We note that non-linearities and the Noise Figure grow with higher biasing voltage and current, but the gain remains almost constant across multiple bias voltages, lowering with higher frequency.
+
+\section{Topology}
+
+The topology chosen for the design takes into consideration various suggestions from the maunfacturer \cite{infineon} and other sources. The bias circuit for the LNA can be seen on figure \ref{fig:biasing}, the bias conditions were selected as a neutral point between the Linearity, Maximum Gain and Noise Figure graphs. The Common Emitter topology is selected both by the manufacturer's note and our course guide book for amplification at lower frequencies (still 10 times lower than the $f_T$ of the transistor, which for the \textbf{BFP460} at this operating point is around 22GHz), a feedback resistor topology is suggested to stabilize transistor bias \cite{infineon}.
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/biasing.png}
+        \caption{Biasing circuit for LNA in common emitter with emitter feedback}
+        \label{fig:biasing}
+\end{figure}
+
+Based on the spice models, an \textbf{S} parameter analysis was made to ensure the transistor was operating correctly at the wanted frequency, and also a simple transient simulation was performed at $f_c$. Results can be seen respectively on figures \ref{fig:s_params} and \ref{fig:transient}.
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/s_params.png}
+        \caption{S-parameter simulation of LNA}
+        \label{fig:s_params}
+\end{figure}
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/transient.png}
+        \caption{Basic transient simulation of LNA with $v_{in} = (1mV)\sin(\omega_c t)$}
+        \label{fig:transient}
+\end{figure}
+
+The values of the coupling capacitors were selected based on \cite{infineon}. The results of \textbf{S} parameters, the \textbf{BFP460} behaves like a unilateral network. 
+
+\section{Impedance Matching}
+
+On figure \ref{fig:matching}, values for the \textbf{S} parameters can be seen for $f_c = 100$MHz.
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/matching.png}
+        \caption{\textbf{S} parameters of amplifier for $f_c$}
+        \label{fig:matching}
+\end{figure}
+
+As we have $\mathbf{Z}_{ref} = 50\Omega$, and as shown on equation \ref{eq:s_11}
+
+\begin{equation}
+    \mathbf{Z}_{eq_i} = \mathbf{Z}_{ref} \frac{1 + \mathbf{S}_{ii}}{1 - \mathbf{S}_{ii}}\text{, where $i \in \{1,2\}$}
+    \label{eq:s_11}
+\end{equation}
+
+Then, we take $\mathbf{z}_{eq_1}$ and $\mathbf{z}_{eq_2}$ and plot them on the Smith Chart, we obtain the $\mathbf{z}_{eq_i}$.
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/matching_2.png}
+        \caption{Input and output $\mathbf{z}_{eq}$ of amplifier for $f_c$}
+        \label{fig:matching_2}
+\end{figure}
+
+Given that $\mathbf{S}_{12} \approx 0$, then $\mathbf{S}_{11} \approx \Gamma_{in}$, and $\Gamma_{out} = \mathbf{S}_{22}$. With some \textbf{octave} scripts and the equations of the analytical solutions of L-Matching networks \cite{pozar}, we get the matching networks of figures \ref{fig:matching_nw_in} and \ref{fig:matching_nw_out}.
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/matching_nw_in.png}
+        \caption{Input Matching Network}
+        \label{fig:matching_nw_in}
+\end{figure}
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/matching_nw_out.png}
+        \caption{Output Matching Network}
+        \label{fig:matching_nw_out}
+\end{figure}
+
+The result of the matching can be seen via the new reflection parameters, as well as being clear that this new network behaves within scope of the specification on $\mathbf{S}_{11} \leq -15$dB. This can be seen on figure \ref{fig:matched_nw}.
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/matched_nw.png}
+        \caption{Values of $\mathbf{S}_{11}$ and $\mathbf{S}_{22}$ after matching}
+        \label{fig:matched_nw}
+\end{figure}
+
+\section{Stability, Noise Figure and Gain}
+
+For the other design requirements, we have that at $f_c = 100$MHz, $NF_{\text{dB}} \approx 4.7$dB, $\kappa > 1$, $A_v \approx 20dB$.
+
+\begin{thebibliography}{00}
+\bibitem{infineon} Infineon Technologies, "Design Guide for Low Noise TR in FM Radio," Infineon Technologies. [Online]. Available: https://www.infineon.com/assets/row/public/documents/24/42/infineon-design-guide-for-low-noise-tr-in-fm-radio-fe-applicationnotes-en.pdf. [Last Accessed: Oct. 31, 2025].
+\bibitem{pozar} D. M. Pozar, Microwave Engineering, 4th ed. Hoboken, NJ: Wiley, 2012.
+\bibitem{razavi} B. Razavi, RF Microelectronics, 2nd ed. Boston, MA: Pearson, 2012.
+\end{thebibliography}
+
+\end{document}

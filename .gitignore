@@ -1,0 +1,8 @@
+**/octave-workspace
+**/*.dat*
+**/*.net*
+**/*.zip
+**/*.lst*
+**/*.pdf*
+**/*.aux*
+**/*.log*
