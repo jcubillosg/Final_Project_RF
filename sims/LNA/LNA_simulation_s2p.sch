@@ -1,6 +1,6 @@
 <Qucs Schematic 25.2.0>
 <Properties>
-  <View=144,56,887,675,3.07083,68,488>
+  <View=148,6,1002,556,2.64419,45,40>
   <Grid=10,10,1>
   <DataSet=LNA_simulation_s2p.dat>
   <DataDisplay=LNA_simulation_s2p.dpl>
